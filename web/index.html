@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AquaTwin: 3D Smart Water Monitoring and Control Simulator</title>
+    <meta name="description"
+        content="Interactive 3D Digital Twin for Smart Water Monitoring and Control, powered by an authoritative C physics simulation engine.">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Top Telemetry & Brand Header -->
+    <header>
+        <div class="brand-section">
+            <div class="logo-badge" id="logoBadge">&#x1F4A7;</div>
+            <div class="brand-text">
+                <h1>AQUATWIN &bull; 3D DIGITAL TWIN</h1>
+                <p>C-POWERED SMART WATER CONTROL SIMULATOR</p>
+            </div>
+        </div>
+
+        <div class="header-center-quote">
+            <span class="quote-pill" id="headerQuote">Save Water, Save Environment!</span>
+        </div>
+
+        <div class="header-status-group">
+            <div class="engine-indicator" id="engineStatusIndicator">
+                <span class="pulse-dot"></span>
+                <span id="engineStatusText">C ENGINE: ONLINE</span>
+            </div>
+            <div class="sim-clock" id="simClockDisplay">T = 0.0s</div>
+        </div>
+    </header>
+
+    <!-- Main Viewport Grid -->
+    <main>
+        <!-- 3D Digital Twin Tank Viewport -->
+        <section class="viewport-3d" id="viewport3DContainer">
+            <canvas id="canvas3d"></canvas>
+
+            <!-- Overlaid 3D Viewport Telemetry HUD -->
+            <div class="viewport-hud">
+                <div class="hud-pill">
+                    <span class="label">Simulated Level</span>
+                    <span class="value" id="hudWaterLevel">0.0%</span>
+                </div>
+                <div class="hud-pill">
+                    <span class="label">Simulated Volume</span>
+                    <span class="value" id="hudWaterVolume">0.0 L</span>
+                </div>
+                <div class="hud-pill">
+                    <span class="label">Net Flow</span>
+                    <span class="value" id="hudNetFlow">+0.0 L/s</span>
+                </div>
+            </div>
+
+            <div class="viewport-controls-hint">
+                <span>&#x1F5B1;&#xFE0F; Left-click drag to rotate &bull; Right-click drag to pan &bull; Scroll to
+                    zoom</span>
+                <button class="btn-cam-reset" id="btnResetCamera">Reset Camera</button>
+            </div>
+        </section>
+
+        <!-- Engineering Telemetry & Control Dashboard -->
+        <aside class="dashboard-panel" id="dashboardPanel">
+
+            <!-- Module 1: Classification & State Alert (PDF Baseline Integration) -->
+            <div class="dash-card">
+                <div class="card-title">
+                    <span>System State & Diagnostics</span>
+                    <span id="cardModeBadge"
+                        style="font-family: var(--font-mono); color: var(--primary-cyan);">AUTO</span>
+                </div>
+
+                <div class="alert-banner state-medium" id="systemAlertBanner">
+                    <div class="alert-status-text" id="alertStatusLabel">MEDIUM WATER LEVEL</div>
+                    <div class="alert-quote-text" id="alertMessageText">Message: Water level is in normal range.</div>
+                </div>
+
+                <div
+                    style="margin-top: 10px; font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">
+                    <span style="color: var(--text-cyan);">Controller:</span> <span id="controllerReasonText">System
+                        initialized.</span>
+                </div>
+            </div>
+
+            <!-- Module 2: Water Level & Tank Capacity -->
+            <div class="dash-card">
+                <div class="card-title">
+                    <span>Tank Reservoir Telemetry</span>
+                    <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted);">Cap:
+                        1000.0 L</span>
+                </div>
+
+                <div class="gauge-grid">
+                    <div class="metric-box">
+                        <div class="metric-label">Water Level</div>
+                        <div class="metric-val" id="metricWaterLevel">0.0%</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-label">Actual Volume</div>
+                        <div class="metric-val" id="metricActualVolume">0.0 L</div>
+                    </div>
+                </div>
+
+                <div class="level-progress-track">
+                    <div class="level-progress-bar" id="levelProgressBar"></div>
+                </div>
+                <div
+                    style="display: flex; justify-content: space-between; font-size: 0.68rem; color: var(--text-muted); margin-top: 4px; font-family: var(--font-mono);">
+                    <span>0% (Empty)</span>
+                    <span style="color: var(--status-low);">30% (Low)</span>
+                    <span style="color: var(--status-high);">80% (High)</span>
+                    <span style="color: var(--status-overflow);">95% (Overflow)</span>
+                </div>
+            </div>
+
+            <!-- Module 3: Actuator Status & Operator Controls -->
+            <div class="dash-card">
+                <div class="card-title">
+                    <span>Actuator Monitoring & Control</span>
+                    <div class="btn-group-toggle">
+                        <button class="btn-toggle active" id="btnModeAuto">AUTO</button>
+                        <button class="btn-toggle" id="btnModeManual">MANUAL</button>
+                    </div>
+                </div>
+
+                <div class="actuator-row">
+                    <div class="actuator-label">
+                        <span class="indicator-led" id="pumpLed"></span>
+                        <span>Feed Pump (15 L/s max)</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span id="pumpFlowText"
+                            style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--primary-cyan);">0.0
+                            L/s</span>
+                        <button class="btn-action" id="btnTogglePump" disabled>Pump ON</button>
+                    </div>
+                </div>
+
+                <div class="actuator-row">
+                    <div class="actuator-label">
+                        <span class="indicator-led active" id="inflowValveLed"></span>
+                        <span>Inflow Valve</span>
+                    </div>
+                    <span id="inflowValveVal" style="font-family: var(--font-mono); font-size: 0.8rem;">100%</span>
+                </div>
+                <div class="slider-control">
+                    <input type="range" class="slider-input" id="sliderInflowValve" min="0" max="100" value="100">
+                </div>
+
+                <div class="actuator-row" style="margin-top: 10px;">
+                    <div class="actuator-label">
+                        <span class="indicator-led active" id="drainValveLed"></span>
+                        <span>Consumer Drain Valve</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span id="drainFlowText"
+                            style="font-family: var(--font-mono); font-size: 0.8rem; color: #fb923c;">0.0 L/s</span>
+                        <span id="drainValveVal" style="font-family: var(--font-mono); font-size: 0.8rem;">20%</span>
+                    </div>
+                </div>
+                <div class="slider-control">
+                    <input type="range" class="slider-input" id="sliderDrainValve" min="0" max="100" value="20">
+                </div>
+
+                <div style="display: flex; gap: 8px; margin-top: 14px;">
+                    <button class="btn-action" id="btnPauseSim" style="flex: 1;">Pause</button>
+                    <button class="btn-action btn-danger" id="btnResetSim" style="flex: 1;">Reset</button>
+                </div>
+            </div>
+
+            <!-- Module 4: Engineering Scenarios (Fault Injection & Demos) -->
+            <div class="dash-card">
+                <div class="card-title">
+                    <span>Engineering Scenarios</span>
+                    <span style="font-size: 0.68rem; color: var(--text-muted);">Selectable</span>
+                </div>
+
+                <div class="scenario-grid">
+                    <button class="btn-scenario active" id="btnScenNormal" data-scenario="0">
+                        <span class="scenario-title">1. Normal Fill</span>
+                        <span class="scenario-desc">Standard cycle (Inflow > Outflow)</span>
+                    </button>
+                    <button class="btn-scenario" id="btnScenConsumption" data-scenario="1">
+                        <span class="scenario-title">2. Water Demand</span>
+                        <span class="scenario-desc">High consumer discharge</span>
+                    </button>
+                    <button class="btn-scenario" id="btnScenOverflow" data-scenario="2">
+                        <span class="scenario-title">3. Overflow Risk</span>
+                        <span class="scenario-desc">Forced overfill / safety test</span>
+                    </button>
+                    <button class="btn-scenario" id="btnScenPumpFail" data-scenario="3">
+                        <span class="scenario-title">4. Pump Failure</span>
+                        <span class="scenario-desc">Actuator stall / zero delivery</span>
+                    </button>
+                    <button class="btn-scenario" id="btnScenPipeLeak" data-scenario="4">
+                        <span class="scenario-title">5. Pipeline Leak</span>
+                        <span class="scenario-desc">Unaccounted pipe loss</span>
+                    </button>
+                    <button class="btn-scenario" id="btnScenSensorNoise" data-scenario="5">
+                        <span class="scenario-title">6. Sensor Noise</span>
+                        <span class="scenario-desc">Transducer EMI & filter</span>
+                    </button>
+                </div>
+
+                <div style="margin-top: 10px; font-size: 0.72rem; color: #94a3b8; font-family: var(--font-mono);">
+                    <span style="color: var(--primary-cyan);">Fault Diagnosis:</span>
+                    <span id="faultDescText">Nominal operation. No faults detected.</span>
+                </div>
+            </div>
+
+            <!-- Module 5: ENTC Signal Processing & Transducer Filtering -->
+            <div class="dash-card">
+                <div class="card-title">
+                    <span>ENTC Signal Filtering (EMA)</span>
+                    <span style="font-size: 0.68rem; color: var(--text-muted); font-family: var(--font-mono);">&alpha; =
+                        0.20</span>
+                </div>
+                <div
+                    style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; font-family: var(--font-mono); font-size: 0.75rem;">
+                    <div
+                        style="background: rgba(15, 23, 42, 0.4); padding: 6px; border-radius: 6px; text-align: center;">
+                        <div style="color: var(--text-muted); font-size: 0.65rem;">GROUND TRUTH</div>
+                        <div id="entcActualLevel" style="color: #ffffff; font-weight: 700;">0.0%</div>
+                    </div>
+                    <div
+                        style="background: rgba(15, 23, 42, 0.4); padding: 6px; border-radius: 6px; text-align: center;">
+                        <div style="color: #fbbf24; font-size: 0.65rem;">RAW TRANSDUCER</div>
+                        <div id="entcRawLevel" style="color: #fbbf24; font-weight: 700;">0.0%</div>
+                    </div>
+                    <div
+                        style="background: rgba(15, 23, 42, 0.4); padding: 6px; border-radius: 6px; text-align: center;">
+                        <div style="color: var(--primary-cyan); font-size: 0.65rem;">FILTERED EMA</div>
+                        <div id="entcFilteredLevel" style="color: var(--primary-cyan); font-weight: 700;">0.0%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Module 6: Telemetry History Chart -->
+            <div class="dash-card">
+                <div class="card-title">
+                    <span>Water Level History (Live Telemetry)</span>
+                    <span style="font-size: 0.68rem; color: var(--text-muted);">60s Window</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="chartCanvas"></canvas>
+                </div>
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: #38bdf8;"></span>
+                        <span>Level %</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: #fbbf24;"></span>
+                        <span>Raw Noise</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: #ef4444;"></span>
+                        <span>Safety Limit (95%)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Module 7: Chronological Event Log -->
+            <div class="dash-card">
+                <div class="card-title">
+                    <span>Chronological Event Log</span>
+                    <button id="btnClearLog"
+                        style="background: transparent; border: none; color: var(--text-muted); font-size: 0.68rem; cursor: pointer;">Clear</button>
+                </div>
+                <div class="event-log-box" id="eventLogBox">
+                    <div class="log-entry">
+                        <span class="time">[00:00.0]</span>
+                        <span>AquaTwin simulation engine initialized.</span>
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+    </main>
+
+    <!-- Dependencies -->
+    <script src="three.min.js"></script>
+    <script src="OrbitControls.js"></script>
+    <!-- Digital Twin Application Logic -->
+    <script src="app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,726 @@
+/* ============================================================================
+ * AQUATWIN: 3D SMART WATER DIGITAL TWIN
+ * Stylesheet: style.css (Dark Industrial Engineering HUD & Glassmorphism)
+ * ============================================================================
+ */
+
+:root {
+    --bg-dark: #070b14;
+    --bg-card: rgba(15, 23, 42, 0.75);
+    --bg-card-border: rgba(56, 189, 248, 0.18);
+    --bg-card-hover: rgba(30, 41, 59, 0.85);
+    
+    --primary-cyan: #00f2fe;
+    --primary-blue: #4facfe;
+    --accent-glow: rgba(0, 242, 254, 0.35);
+    
+    --status-low: #f59e0b;       /* Amber */
+    --status-med: #10b981;       /* Emerald */
+    --status-high: #f97316;      /* Orange */
+    --status-overflow: #ef4444;  /* Red */
+    
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --text-cyan: #38bdf8;
+    
+    --font-mono: 'Consolas', 'Fira Code', 'Roboto Mono', monospace;
+    --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    
+    --panel-radius: 12px;
+    --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: var(--font-ui);
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* -------------------------------------------------------------------------
+ * Header / Telemetry Bar
+ * ------------------------------------------------------------------------- */
+header {
+    height: 60px;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(10, 15, 29, 0.9) 100%);
+    border-bottom: 1px solid var(--bg-card-border);
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    z-index: 100;
+}
+
+.brand-section {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.logo-badge {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 15px rgba(0, 242, 254, 0.5);
+    color: #070b14;
+    font-weight: 800;
+    font-size: 1.2rem;
+}
+
+.brand-text h1 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    background: linear-gradient(90deg, #ffffff 0%, #38bdf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.brand-text p {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    letter-spacing: 0.4px;
+}
+
+.header-center-quote {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(14, 165, 233, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    padding: 6px 16px;
+    border-radius: 20px;
+}
+
+.quote-pill {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--primary-cyan);
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+.header-status-group {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.engine-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    font-family: var(--font-mono);
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    padding: 5px 12px;
+    border-radius: 20px;
+}
+
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #10b981;
+    box-shadow: 0 0 10px #10b981;
+    animation: pulse 1.8s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(0.9); opacity: 0.7; }
+    50% { transform: scale(1.3); opacity: 1; }
+    100% { transform: scale(0.9); opacity: 0.7; }
+}
+
+.sim-clock {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-cyan);
+    background: rgba(15, 23, 42, 0.6);
+    padding: 5px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--bg-card-border);
+}
+
+/* -------------------------------------------------------------------------
+ * Main Viewport Layout
+ * ------------------------------------------------------------------------- */
+main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 480px;
+    height: calc(100vh - 60px);
+    overflow: hidden;
+}
+
+/* -------------------------------------------------------------------------
+ * Left: 3D Canvas Viewport
+ * ------------------------------------------------------------------------- */
+.viewport-3d {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 50% 50%, #0d172e 0%, #060913 100%);
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+}
+
+#canvas3d {
+    width: 100%;
+    height: 100%;
+    display: block;
+    outline: none;
+    touch-action: none;
+}
+
+/* 3D Overlaid Floating Telemetry Badges */
+.viewport-hud {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.hud-pill {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid var(--bg-card-border);
+    backdrop-filter: blur(8px);
+    padding: 8px 16px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+}
+
+.hud-pill .label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.hud-pill .value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: var(--primary-cyan);
+}
+
+.viewport-controls-hint {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(6px);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 15;
+}
+
+.btn-cam-reset {
+    background: rgba(56, 189, 248, 0.15);
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    color: var(--text-cyan);
+    padding: 4px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.72rem;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.btn-cam-reset:hover {
+    background: rgba(56, 189, 248, 0.35);
+    color: #ffffff;
+}
+
+.btn-cam-reset:active {
+    transform: scale(0.96);
+}
+
+/* -------------------------------------------------------------------------
+ * Right: Engineering Telemetry Dashboard & Controls
+ * ------------------------------------------------------------------------- */
+.dashboard-panel {
+    position: relative;
+    z-index: 20;
+    background: rgba(10, 16, 31, 0.95);
+    border-left: 1px solid var(--bg-card-border);
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(56, 189, 248, 0.3) transparent;
+}
+
+.dashboard-panel::-webkit-scrollbar {
+    width: 6px;
+}
+.dashboard-panel::-webkit-scrollbar-thumb {
+    background: rgba(56, 189, 248, 0.3);
+    border-radius: 3px;
+}
+
+/* Card Module */
+.dash-card {
+    background: var(--bg-card);
+    border: 1px solid var(--bg-card-border);
+    border-radius: var(--panel-radius);
+    padding: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(10px);
+}
+
+.card-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-cyan);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Live Alert Banner */
+.alert-banner {
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid;
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.alert-banner.state-low {
+    background: rgba(245, 158, 11, 0.12);
+    border-color: var(--status-low);
+    color: #fbbf24;
+}
+
+.alert-banner.state-medium {
+    background: rgba(16, 185, 129, 0.12);
+    border-color: var(--status-med);
+    color: #34d399;
+}
+
+.alert-banner.state-high {
+    background: rgba(249, 115, 22, 0.15);
+    border-color: var(--status-high);
+    color: #fb923c;
+}
+
+.alert-banner.state-overflow {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: var(--status-overflow);
+    color: #f87171;
+    animation: alert-blink 1s infinite alternate;
+}
+
+@keyframes alert-blink {
+    0% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.2); }
+    100% { box-shadow: 0 0 25px rgba(239, 68, 68, 0.6); }
+}
+
+.alert-status-text {
+    font-size: 0.95rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.alert-quote-text {
+    font-size: 0.82rem;
+    opacity: 0.95;
+    font-style: italic;
+}
+
+/* Water Level Meter & Volume Bar */
+.gauge-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.metric-box {
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 10px 14px;
+}
+
+.metric-box .metric-label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.metric-box .metric-val {
+    font-size: 1.4rem;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: var(--text-main);
+}
+
+.level-progress-track {
+    width: 100%;
+    height: 12px;
+    background: rgba(15, 23, 42, 0.8);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.level-progress-bar {
+    height: 100%;
+    width: 45%;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #00f2fe 0%, #4facfe 100%);
+    box-shadow: 0 0 12px rgba(0, 242, 254, 0.5);
+    transition: width 0.15s ease-out;
+}
+
+/* Actuator Status & Control Grid */
+.actuator-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.actuator-row:last-child {
+    border-bottom: none;
+}
+
+.actuator-label {
+    font-size: 0.85rem;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.indicator-led {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #64748b;
+}
+
+.indicator-led.active {
+    background-color: #10b981;
+    box-shadow: 0 0 10px #10b981;
+}
+
+.indicator-led.fault {
+    background-color: #ef4444;
+    box-shadow: 0 0 10px #ef4444;
+}
+
+/* Switch & Buttons */
+.btn-group-toggle {
+    display: flex;
+    background: rgba(15, 23, 42, 0.8);
+    border-radius: 8px;
+    padding: 3px;
+    border: 1px solid var(--bg-card-border);
+}
+
+.btn-toggle {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    user-select: none;
+}
+
+.btn-toggle:active {
+    transform: scale(0.96);
+}
+
+.btn-toggle:focus-visible {
+    outline: 2px solid var(--primary-cyan);
+    outline-offset: 2px;
+}
+
+.btn-toggle.active {
+    background: linear-gradient(135deg, #00f2fe 0%, #0284c7 100%);
+    color: #ffffff;
+    box-shadow: 0 0 12px rgba(0, 242, 254, 0.4);
+}
+
+.btn-action {
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    color: var(--text-cyan);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    user-select: none;
+}
+
+.btn-action:hover {
+    background: rgba(56, 189, 248, 0.28);
+    color: #ffffff;
+}
+
+.btn-action:active {
+    transform: scale(0.97);
+}
+
+.btn-action:focus-visible {
+    outline: 2px solid var(--primary-cyan);
+    outline-offset: 2px;
+}
+
+.btn-action.btn-danger {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #fca5a5;
+}
+
+.btn-action.btn-danger:hover {
+    background: rgba(239, 68, 68, 0.35);
+    color: #ffffff;
+}
+
+/* Sliders */
+.slider-control {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.slider-hdr {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    user-select: none;
+}
+
+.slider-input {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    background: #1e293b;
+    border-radius: 4px;
+    outline: none;
+    cursor: pointer;
+    touch-action: pan-y;
+}
+
+.slider-input:focus-visible {
+    box-shadow: 0 0 0 2px var(--primary-cyan);
+}
+
+.slider-input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--primary-cyan);
+    box-shadow: 0 0 10px var(--primary-cyan);
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.slider-input::-webkit-slider-thumb:hover {
+    transform: scale(1.25);
+    box-shadow: 0 0 14px var(--primary-cyan);
+}
+
+.slider-input::-webkit-slider-thumb:active {
+    transform: scale(1.35);
+    background: #ffffff;
+}
+
+.slider-input::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--primary-cyan);
+    box-shadow: 0 0 10px var(--primary-cyan);
+    cursor: pointer;
+    border: none;
+    transition: transform 0.1s;
+}
+
+.slider-input::-moz-range-thumb:hover {
+    transform: scale(1.25);
+}
+
+/* Scenarios Grid */
+.scenario-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.btn-scenario {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-muted);
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 0.74rem;
+    text-align: left;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    user-select: none;
+}
+
+.btn-scenario:hover {
+    background: rgba(56, 189, 248, 0.15);
+    border-color: rgba(56, 189, 248, 0.4);
+    color: var(--text-main);
+}
+
+.btn-scenario:active {
+    transform: scale(0.97);
+}
+
+.btn-scenario:focus-visible {
+    outline: 2px solid var(--primary-cyan);
+    outline-offset: 2px;
+}
+
+.btn-scenario.active {
+    background: rgba(0, 242, 254, 0.15);
+    border-color: var(--primary-cyan);
+    color: var(--primary-cyan);
+    box-shadow: 0 0 12px rgba(0, 242, 254, 0.25);
+}
+
+.scenario-title {
+    font-weight: 700;
+}
+
+.scenario-desc {
+    font-size: 0.68rem;
+    opacity: 0.75;
+}
+
+/* Chart Canvas */
+.chart-container {
+    width: 100%;
+    height: 160px;
+    position: relative;
+    background: rgba(10, 15, 29, 0.8);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+}
+
+#chartCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.chart-legend {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 8px;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.legend-color {
+    width: 10px;
+    height: 3px;
+    border-radius: 2px;
+}
+
+/* Event Log Console */
+.event-log-box {
+    height: 120px;
+    background: rgba(5, 8, 16, 0.9);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 8px 12px;
+    overflow-y: auto;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.log-entry {
+    line-height: 1.4;
+    color: #cbd5e1;
+}
+
+.log-entry .time {
+    color: var(--text-cyan);
+    margin-right: 6px;
+}
+
+.log-entry.warn {
+    color: #fbbf24;
+}
+
+.log-entry.alert {
+    color: #f87171;
+}
